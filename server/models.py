@@ -4,10 +4,24 @@ db = SQLAlchemy()
 
 class Author(db.Model):
     __tablename__ = 'authors'
-    # Add validations and constraints 
+    # Add validations and constraints
+    
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name:
+            raise ValueError('name validation failed')
+        else:
+            return name
+    
+    @validates('phone_number')
+    def validate_phone_number(self, key, phone_number):
+        if len(phone_number) != 10:
+            raise ValueError('phone number validation failed')
+        else:
+            return phone_number
 
     id = db.Column(db.Integer, primary_key=True)
-    name= db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String, unique=True, nullable=False)
     phone_number = db.Column(db.String)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
@@ -17,7 +31,35 @@ class Author(db.Model):
 
 class Post(db.Model):
     __tablename__ = 'posts'
-    # Add validations and constraints 
+    # Add validations and constraints
+    
+    @validates('content')
+    def validate_content(self, key, content):
+        if len(content) < 250:
+            raise ValueError('content length validation failed')
+        else:
+            return content
+    
+    @validates('summary')
+    def validate_summary(self, key, summary):
+        if len(summary) >= 250:
+            raise ValueError('summary length validation failed')
+        else:
+            return summary
+    
+    @validates('category')
+    def validate_category(self, key, category):
+        if category not in ('Fiction', 'Non-Fiction'):
+            raise ValueError('category validation failed')
+        else:
+            return category
+    
+    @validates('title')
+    def validate_title(self, key, title):
+        if not any(keyword in title for keyword in ('Won\'t Balieve', 'Secret', 'Top', 'Guess')):
+            raise ValueError('title validation failed')
+        else:
+            return title
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
